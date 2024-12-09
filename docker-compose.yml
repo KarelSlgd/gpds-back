@@ -1,0 +1,36 @@
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: unless-stopped
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_USER: autos
+      MYSQL_PASSWORD: autos2024
+      MYSQL_DATABASE: autos_db
+    networks:
+      - backend
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: autos-app
+    restart: unless-stopped
+    ports:
+      - "8082:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/autos_db
+      SPRING_DATASOURCE_USERNAME: autos
+      SPRING_DATASOURCE_PASSWORD: autos2024
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create
+    depends_on:
+      - mysql-db
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
